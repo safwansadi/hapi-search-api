@@ -16,10 +16,10 @@ class Product extends BaseService {
     try {
       const key = queries.key;
       const keywords = _.split(queries.key, " ");
-      const sort = queries.sort;
-      const page = parseInt(queries.page);
-      const limit = parseInt(queries.limit);
-      const offset = page * limit - limit;
+      // const sort = queries.sort;
+      // const page = parseInt(queries.page);
+      // const limit = parseInt(queries.limit);
+      // const offset = page * limit - limit;
 
       const products = await super.readByWhere(
         [
@@ -47,7 +47,7 @@ class Product extends BaseService {
         }
       );
       console.log("products", products);
-      return { success: true, products };
+      return { success: true, data: products };
     } catch (error) {
       logger.error(tag + ": searchProductForCustomerV2", error);
 
