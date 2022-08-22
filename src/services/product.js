@@ -17,11 +17,17 @@ class Product extends BaseService {
       const key = queries.key;
       const keywords = key.includes(" ") ? _.split(queries.key, " ") : [key];
 
-      console.log("keywords", keywords);
-      // const sort = queries.sort;
-      // const page = parseInt(queries.page);
-      // const limit = parseInt(queries.limit);
-      // const offset = page * limit - limit;
+      let sort;
+
+      if (queries.sort) {
+        sort = queries.sort.includes(" ")
+          ? [_.split(queries.sort, " ")]
+          : [[queries.sort, "ASC"]];
+      }
+
+      let page = queries.page && parseInt(queries.page);
+      let limit = queries.page && queries.limit && parseInt(queries.limit);
+      let offset = queries.page && queries.limit && page * limit - limit;
 
       const products = await super.readByWhere(
         [
@@ -43,9 +49,13 @@ class Product extends BaseService {
             ),
           ],
           status: "active",
-        }
+        },
+        null,
+        sort,
+        offset,
+        limit
       );
-      // console.log("products", products);
+
       return { success: true, data: products };
     } catch (error) {
       logger.error(tag + ": searchProductForCustomerV2", error);

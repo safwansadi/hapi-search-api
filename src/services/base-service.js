@@ -9,14 +9,16 @@ class BaseService {
     this.model = model;
   }
   async readByWhere(attributes, where, include, order, offset, limit) {
-    return await db[this.model].findAll({
-      attributes: !attributes ? undefined : attributes,
-      include: !include ? undefined : include,
-      where,
-      order: !order ? undefined : order,
-      offset: !offset ? undefined : offset,
-      limit: !limit ? undefined : limit,
-    });
+    let query = {};
+
+    query["attributes"] = attributes && attributes;
+    query["include"] = include && include;
+    query["where"] = where;
+    query["order"] = order && order;
+    query["offset"] = offset && offset;
+    query["limit"] = limit && limit;
+
+    return await db[this.model].findAll(query);
   }
 }
 
