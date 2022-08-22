@@ -15,7 +15,9 @@ class Product extends BaseService {
   async searchProduct(queries) {
     try {
       const key = queries.key;
-      const keywords = _.split(queries.key, " ");
+      const keywords = key.includes(" ") ? _.split(queries.key, " ") : [key];
+
+      console.log("keywords", keywords);
       // const sort = queries.sort;
       // const page = parseInt(queries.page);
       // const limit = parseInt(queries.limit);
@@ -34,9 +36,6 @@ class Product extends BaseService {
         ],
         {
           [Op.or]: [
-            Sequelize.where(Sequelize.fn("lower", Sequelize.col("tags")), {
-              [Op.substring]: key.toLowerCase().trim(),
-            }),
             ..._.map(keywords, (keyword) =>
               Sequelize.where(Sequelize.fn("lower", Sequelize.col("tags")), {
                 [Op.substring]: keyword.toLowerCase().trim(),
@@ -46,7 +45,7 @@ class Product extends BaseService {
           status: "active",
         }
       );
-      console.log("products", products);
+      // console.log("products", products);
       return { success: true, data: products };
     } catch (error) {
       logger.error(tag + ": searchProductForCustomerV2", error);
