@@ -46,6 +46,7 @@ class Product extends BaseService {
           status: "active",
         }
       );
+      console.log("products", products);
       return { success: true, products };
     } catch (error) {
       logger.error(tag + ": searchProductForCustomerV2", error);

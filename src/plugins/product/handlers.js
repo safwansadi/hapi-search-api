@@ -7,13 +7,10 @@ const { getLoggingOptions } = require("../../utils");
 const service = new Service();
 
 module.exports = {
-  searchProductByStoreSlugForCustomerV2: async (request, h) => {
-    const { params, query } = request;
+  searchProduct: async (request, h) => {
+    const { query } = request;
 
-    const result = await service.searchProductByStoreSlugForCustomerV2(
-      params.slug,
-      query
-    );
+    const result = await service.searchProduct(query);
 
     if (!result.success) return error(result.data);
 

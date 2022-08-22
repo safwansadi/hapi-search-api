@@ -7,7 +7,7 @@ module.exports = [
   {
     method: "GET",
     path: "/api/v2/customer/product-search",
-    handler: product.searchProductForCustomerV2,
+    handler: product.searchProduct,
     options: {
       auth: false,
     },
