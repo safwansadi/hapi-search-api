@@ -1,8 +1,6 @@
 "use strict";
 
 const db = require("../models/index");
-const { getInvalidFileTypeMessage } = require("../utils/validation");
-const _ = require("lodash");
 
 class BaseService {
   constructor(model) {
