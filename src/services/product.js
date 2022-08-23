@@ -15,15 +15,16 @@ class Product extends BaseService {
   async searchProduct(queries) {
     try {
       const key = queries.key;
-      const keywords = key.includes(" ") ? _.split(queries.key, " ") : [key];
+      const keywords = _.split(queries.key, " ");
 
-      let sort;
-
-      if (queries.sort) {
-        sort = queries.sort.includes(" ")
-          ? [_.split(queries.sort, " ")]
-          : [[queries.sort, "ASC"]];
-      }
+      const sort = [
+        [
+          Sequelize.literal(
+            `CASE WHEN tags like ' %${key}%' THEN 1 ELSE 2 END`
+          ),
+          "ASC",
+        ],
+      ];
 
       let page = queries.page && parseInt(queries.page);
       let limit = queries.page && queries.limit && parseInt(queries.limit);
@@ -42,6 +43,9 @@ class Product extends BaseService {
         ],
         {
           [Op.or]: [
+            Sequelize.where(Sequelize.fn("lower", Sequelize.col("tags")), {
+              [Op.substring]: key.toLowerCase().trim(),
+            }),
             ..._.map(keywords, (keyword) =>
               Sequelize.where(Sequelize.fn("lower", Sequelize.col("tags")), {
                 [Op.substring]: keyword.toLowerCase().trim(),
@@ -51,7 +55,7 @@ class Product extends BaseService {
           status: "active",
         },
         null,
-        sort,
+        // sort,
         offset,
         limit
       );
