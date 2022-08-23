@@ -17,15 +17,6 @@ class Product extends BaseService {
       const key = queries.key;
       const keywords = _.split(queries.key, " ");
 
-      // const sort = [
-      //   [
-      //     Sequelize.literal(
-      //       `CASE WHEN tags like ' %${key}%' THEN 1 ELSE 2 END`
-      //     ),
-      //     "desc",
-      //   ],
-      // ];
-
       let page = queries.page && parseInt(queries.page);
       let limit = queries.page && queries.limit && parseInt(queries.limit);
       let offset = queries.page && queries.limit && page * limit - limit;
@@ -68,9 +59,6 @@ class Product extends BaseService {
         ],
         {
           [Op.or]: [
-            Sequelize.where(Sequelize.fn("lower", Sequelize.col("tags")), {
-              [Op.substring]: key.toLowerCase().trim(),
-            }),
             ..._.map(keywords, (keyword) =>
               Sequelize.where(Sequelize.fn("lower", Sequelize.col("tags")), {
                 [Op.substring]: keyword.toLowerCase().trim(),
@@ -86,15 +74,13 @@ class Product extends BaseService {
       );
 
       let result = {
-        productsExactMatch,
-        products,
+        ...products,
+        ...productsExactMatch,
       };
-
-      console.log("product", products);
 
       return { success: true, data: result };
     } catch (error) {
-      logger.error(tag + ": searchProductForCustomerV2", error);
+      logger.error(tag + ": searchProductForCustomer", error);
 
       return { success: false, data: error };
     }
