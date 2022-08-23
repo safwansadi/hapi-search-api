@@ -34,7 +34,7 @@ class Product extends BaseService {
         ],
         {
           [Op.or]: [
-            Sequelize.where(Sequelize.fn("lower", Sequelize.col("tags")), {
+            Sequelize.where(Sequelize.fn("lower", Sequelize.col("name")), {
               [Op.substring]: key.toLowerCase().trim(),
             }),
           ],
@@ -59,11 +59,11 @@ class Product extends BaseService {
         ],
         {
           [Op.or]: [
-            Sequelize.where(Sequelize.fn("lower", Sequelize.col("tags")), {
+            Sequelize.where(Sequelize.fn("lower", Sequelize.col("name")), {
               [Op.substring]: key.toLowerCase().trim(),
             }),
             ..._.map(keywords, (keyword) =>
-              Sequelize.where(Sequelize.fn("lower", Sequelize.col("tags")), {
+              Sequelize.where(Sequelize.fn("lower", Sequelize.col("name")), {
                 [Op.substring]: keyword.toLowerCase().trim(),
               })
             ),
