@@ -12,41 +12,24 @@ class Product extends BaseService {
     super("product");
   }
 
-  getProductsForSearchV2(keywords, result) {
+  getProductsForSearch(keywords, result) {
     return new Promise((resolve) => {
       const tempData = [];
       for (let i = 0; i < _.size(result); i++) {
-        const resultTags = _.split(result[i].name, " ");
-        // console.log('result name', resultTags);
-        for (let j = 0; j < _.size(resultTags); j++) {
-          // console.log('trimmed', resultTags[j]);
-          const words = _.split(resultTags[j].toLowerCase(), " ");
+        const resultNames = _.split(result[i].name, " ");
+        for (let j = 0; j < _.size(resultNames); j++) {
+          let compare = (a1, a2) => {
+            return resultNames.reduce((a, c) => a + keywords.includes(c), 0);
+          };
 
-          // console.log('words', words);
-
-          const keywordsMatchCount = _.reduce(
-            keywords,
-            (result, value) => {
-              if (_.find(words, (word) => word.startsWith(value.toLowerCase())))
-                return result + 1;
-
-              return result;
-            },
-            0
-          );
+          const keywordsMatchCount = compare(resultNames, keywords);
 
           console.log("keywordsMatchCount", keywordsMatchCount);
 
-          // if (_.isEqual(keywordsMatchCount, 0)) continue;
-
           tempData.push({
             product: result[i],
-            // sentence: trimmedResultTag,
-            wordsCount: _.size(words),
             keywordsMatchCount,
           });
-
-          // console.log(tempData['keywordsMatchCount']);
         }
       }
 
@@ -54,7 +37,7 @@ class Product extends BaseService {
         _.uniqBy(
           _.map(
             _.reverse(_.sortBy(tempData, ["keywordsMatchCount"])),
-            (datum) => this.setProductData(datum.product.toJSON())
+            (datum) => datum.product.toJSON()
           ),
           "id"
         )
@@ -101,7 +84,7 @@ class Product extends BaseService {
         limit
       );
 
-      const formattedProducts = await this.getProductsForSearchV2(
+      const formattedProducts = await this.getProductsForSearch(
         keywords,
         products,
         !queries.price ? null : _.split(queries.price, "-"),
