@@ -12,6 +12,39 @@ class Product extends BaseService {
     super("product");
   }
 
+  getProductsForSearch(keywords, result) {
+    return new Promise((resolve) => {
+      const tempData = [];
+      for (let i = 0; i < _.size(result); i++) {
+        const resultNames = _.split(result[i].name, " ");
+        for (let j = 0; j < _.size(resultNames); j++) {
+          let compare = (a1, a2) => {
+            return resultNames.reduce((a, c) => a + keywords.includes(c), 0);
+          };
+
+          const keywordsMatchCount = compare(resultNames, keywords);
+
+          console.log("keywordsMatchCount", keywordsMatchCount);
+
+          tempData.push({
+            product: result[i],
+            keywordsMatchCount,
+          });
+        }
+      }
+
+      resolve(
+        _.uniqBy(
+          _.map(
+            _.reverse(_.sortBy(tempData, ["keywordsMatchCount"])),
+            (datum) => datum.product.toJSON()
+          ),
+          "id"
+        )
+      );
+    });
+  }
+
   async searchProduct(queries) {
     try {
       const key = queries.key;
@@ -21,7 +54,7 @@ class Product extends BaseService {
       let limit = queries.page && queries.limit && parseInt(queries.limit);
       let offset = queries.page && queries.limit && page * limit - limit;
 
-      const productsExactMatch = await super.readByWhere(
+      const products = await super.readByWhere(
         [
           "id",
           "slug",
@@ -37,28 +70,6 @@ class Product extends BaseService {
             Sequelize.where(Sequelize.fn("lower", Sequelize.col("name")), {
               [Op.substring]: key.toLowerCase().trim(),
             }),
-          ],
-          status: "active",
-        },
-        null,
-        null,
-        offset,
-        limit
-      );
-
-      const products = await super.readByWhere(
-        [
-          "id",
-          "slug",
-          "name",
-          "nameBn",
-          "tags",
-          "retailPrice",
-          "discountPrice",
-          "quantity",
-        ],
-        {
-          [Op.or]: [
             ..._.map(keywords, (keyword) =>
               Sequelize.where(Sequelize.fn("lower", Sequelize.col("name")), {
                 [Op.substring]: keyword.toLowerCase().trim(),
@@ -73,12 +84,14 @@ class Product extends BaseService {
         limit
       );
 
-      let result = {
-        ...products,
-        ...productsExactMatch,
-      };
+      const formattedProducts = await this.getProductsForSearch(
+        keywords,
+        products,
+        !queries.price ? null : _.split(queries.price, "-"),
+        !queries.brand ? null : _.split(queries.brand, ",")
+      );
 
-      return { success: true, data: result };
+      return { success: true, data: formattedProducts };
     } catch (error) {
       logger.error(tag + ": searchProductForCustomer", error);
 
