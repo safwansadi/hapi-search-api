@@ -86,9 +86,7 @@ class Product extends BaseService {
 
       const formattedProducts = await this.getProductsForSearch(
         keywords,
-        products,
-        !queries.price ? null : _.split(queries.price, "-"),
-        !queries.brand ? null : _.split(queries.brand, ",")
+        products
       );
 
       return { success: true, data: formattedProducts };
