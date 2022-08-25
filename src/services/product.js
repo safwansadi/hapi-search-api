@@ -12,17 +12,27 @@ class Product extends BaseService {
     super("product");
   }
 
-  getProductsForSearch(keywords, result) {
+  getProductsForSearch(keywords = [], result) {
+    const lowerCaseKeywords = keywords.map((element) => {
+      return element.toLowerCase();
+    });
+
+    console.log("keywords", lowerCaseKeywords);
+
     return new Promise((resolve) => {
       const tempData = [];
       for (let i = 0; i < _.size(result); i++) {
-        const resultNames = _.split(result[i].name, " ");
+        const resultNames = _.split(result[i].name.toLowerCase(), " ");
+        console.log("resultNames", resultNames);
         for (let j = 0; j < _.size(resultNames); j++) {
-          let compare = (a1, a2) => {
-            return resultNames.reduce((a, c) => a + keywords.includes(c), 0);
+          let compare = (data, dataToMatch) => {
+            return data.reduce(
+              (result, value) => result + dataToMatch.includes(value),
+              0
+            );
           };
 
-          const keywordsMatchCount = compare(resultNames, keywords);
+          const keywordsMatchCount = compare(resultNames, lowerCaseKeywords);
 
           console.log("keywordsMatchCount", keywordsMatchCount);
 
